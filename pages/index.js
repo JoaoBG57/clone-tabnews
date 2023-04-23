@@ -1,5 +1,10 @@
 function Home() {
-    return <h1>Renata, eu amo você. Se você me ama, dá uma risadinha!</h1>
+  return (
+    <h1>
+      Em breve estaremos com nosso site funcionando para melhor atender nossos
+      clientes e amigos.
+    </h1>
+  );
 }
 
 export default Home;
