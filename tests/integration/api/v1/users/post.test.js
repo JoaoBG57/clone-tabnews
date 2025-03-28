@@ -16,7 +16,7 @@ describe("POST /api/v1/users", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: "filipedeschamps",
+          username: "manedasilva",
           email: "contato@curso.dev",
           password: "senha123",
         }),
@@ -28,7 +28,7 @@ describe("POST /api/v1/users", () => {
 
       expect(responseBody).toEqual({
         id: responseBody.id,
-        username: "filipedeschamps",
+        username: "manedasilva",
         email: "contato@curso.dev",
         password: "senha123",
         created_at: responseBody.created_at,
