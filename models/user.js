@@ -34,7 +34,6 @@ async function findOneByUsername(username) {
 }
 
 async function create(userInputValues) {
-  await validateUniqueEmail(userInputValues.email);
   await validateUniqueUsername(userInputValues.username);
   await validateUniqueEmail(userInputValues.email);
   await hashPasswordInObject(userInputValues);
@@ -42,16 +41,9 @@ async function create(userInputValues) {
   const newUser = await runInsertQuery(userInputValues);
   return newUser;
 
-  async function validateUniqueEmail(email) {
   async function runInsertQuery(userInputValues) {
     const results = await database.query({
       text: `
-        SELECT
-          email
-        FROM
-          users
-        WHERE
-          LOWER(email) = LOWER($1)
         INSERT INTO
           users (username, email, password)
         VALUES
@@ -59,7 +51,6 @@ async function create(userInputValues) {
         RETURNING
           *
         ;`,
-      values: [email],
       values: [
         userInputValues.username,
         userInputValues.email,
@@ -70,12 +61,6 @@ async function create(userInputValues) {
   }
 }
 
-    if (results.rowCount > 0) {
-      throw new ValidationError({
-        message: "O email informado já está sendo utilizado.",
-        action: "Utilize outro email para realizar o cadastro.",
-      });
-    }
 async function update(username, userInputValues) {
   const currentUser = await findOneByUsername(username);
 
@@ -83,33 +68,14 @@ async function update(username, userInputValues) {
     await validateUniqueUsername(userInputValues.username);
   }
 
-  async function validateUniqueUsername(username) {
-    const results = await database.query({
-      text: `
-        SELECT
-          username
-        FROM
-          users
-        WHERE
-          LOWER(username) = LOWER($1)
-        ;`,
-      values: [username],
-    });
   if ("email" in userInputValues) {
     await validateUniqueEmail(userInputValues.email);
   }
 
-    if (results.rowCount > 0) {
-      throw new ValidationError({
-        message: "O username informado já está sendo utilizado.",
-        action: "Utilize outro username para realizar o cadastro.",
-      });
-    }
   if ("password" in userInputValues) {
     await hashPasswordInObject(userInputValues);
   }
 
-  async function runInsertQuery(userInputValues) {
   const userWithNewValues = { ...currentUser, ...userInputValues };
 
   const updatedUser = await runUpdateQuery(userWithNewValues);
@@ -118,10 +84,6 @@ async function update(username, userInputValues) {
   async function runUpdateQuery(userWithNewValues) {
     const results = await database.query({
       text: `
-        INSERT INTO
-          users (username, email, password)
-        VALUES
-          ($1, $2, $3)
         UPDATE
           users
         SET
@@ -133,12 +95,8 @@ async function update(username, userInputValues) {
           id = $1
         RETURNING
           *
-        ;`,
       `,
       values: [
-        userInputValues.username,
-        userInputValues.email,
-        userInputValues.password,
         userWithNewValues.id,
         userWithNewValues.username,
         userWithNewValues.email,
